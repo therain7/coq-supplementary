@@ -64,30 +64,62 @@ Lemma le_gt_id_dec : forall id1 id2 : id, {id1 i<= id2} + {id1 i> id2}.
 Proof. prove_with le_gt_dec. Qed.
 
 Lemma id_eq_dec : forall id1 id2 : id, {id1 = id2} + {id1 <> id2}.
-Proof. admit. Admitted.
+Proof. prove_with Nat.eq_dec. Qed.
 
 Lemma eq_id : forall (T:Type) x (p q:T), (if id_eq_dec x x then p else q) = p.
-Proof. admit. Admitted.
+Proof.
+  intros.
+  destruct (id_eq_dec x x).
+  reflexivity. contradiction.
+Qed.
 
 Lemma neq_id : forall (T:Type) x y (p q:T), x <> y -> (if id_eq_dec x y then p else q) = q.
-Proof. admit. Admitted.
+Proof.
+  intros.
+  destruct (id_eq_dec x y).
+  contradiction. reflexivity.
+Qed.
 
 Lemma lt_gt_id_false : forall id1 id2 : id,
     id1 i> id2 -> id2 i> id1 -> False.
-Proof. admit. Admitted.
+Proof.
+  intros [n] [m] H1 H2.
+  inversion H1 as [n' m' Hnm]; subst.
+  inversion H2 as [m'' n'' Hmn]; subst.
+  lia.
+Qed.
 
 Lemma le_gt_id_false : forall id1 id2 : id,
     id2 i<= id1 -> id2 i> id1 -> False.
-Proof. admit. Admitted.
+Proof.
+  intros [n] [m] Hle Hgt.
+  inversion Hle as [n' m' Hnm]; subst.
+  inversion Hgt as [n'' m'' Hnm']; subst.
+  lia.
+Qed.
 
 Lemma le_lt_eq_id_dec : forall id1 id2 : id, 
     id1 i<= id2 -> {id1 = id2} + {id2 i> id1}.
-Proof. admit. Admitted.
+Proof.
+  destruct id1 as [n1], id2 as [n2].
+  destruct (eq_nat_dec n1 n2) as [H1 | H2].
+  - left. rewrite H1. reflexivity.
+  - right. inversion H. apply gt_conv. lia.
+Qed.
 
 Lemma neq_lt_gt_id_dec : forall id1 id2 : id,
     id1 <> id2 -> {id1 i> id2} + {id2 i> id1}.
-Proof. admit. Admitted.
-    
+Proof.
+  intros id1 id2 H.
+  destruct (gt_eq_gt_id_dec id1 id2) as [[H1|H1]|H1].
+  - left. apply H1.
+  - right. contradiction.
+  - right. apply H1.
+Qed.
+
 Lemma eq_gt_id_false : forall id1 id2 : id,
     id1 = id2 -> id1 i> id2 -> False.
-Proof. admit. Admitted.
+Proof.
+  intros [n] [m] H H1; inversion H; subst.
+  inversion H1 as [n' m' H2]; subst; lia.
+Qed.
